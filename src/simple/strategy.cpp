@@ -12,7 +12,20 @@ using namespace std::literals;
 
 namespace simple {
 
-Strategy::Strategy(roq::client::Dispatcher &dispatcher) : dispatcher_{dispatcher} {
+namespace {
+auto create_market_by_order(auto const &exchange, auto const &symbol) {
+  auto type = roq::client::MarketByOrderFactory::Type::SIMPLE_2;
+  auto options = roq::client::MarketByOrderFactory::Options{
+      .disable_checksum_validation = true,
+      .allow_price_inversion = false,
+  };
+  return roq::client::MarketByOrderFactory::create(type, options, exchange, symbol);
+}
+}  // namespace
+
+Strategy::Strategy(roq::client::Dispatcher &dispatcher)
+    : dispatcher_{dispatcher}, market_by_order_{
+                                   create_market_by_order(flags::Flags::exchange(), flags::Flags::symbols())} {
 }
 
 void Strategy::operator()(roq::Event<roq::Timer> const &event) {
@@ -54,6 +67,10 @@ void Strategy::operator()(roq::Event<roq::MarketStatus> const &) {
 }
 
 void Strategy::operator()(roq::Event<roq::MarketByPriceUpdate> const &) {
+}
+
+void Strategy::operator()(roq::Event<roq::MarketByOrderUpdate> const &event) {
+  (*market_by_order_)(event);
 }
 
 void Strategy::operator()(roq::Event<roq::OrderAck> const &) {

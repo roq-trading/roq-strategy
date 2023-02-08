@@ -2,7 +2,11 @@
 
 #pragma once
 
+#include <memory>
+
 #include "roq/client.hpp"
+
+#include "roq/cache/market_by_order.hpp"
 
 namespace simple {
 
@@ -22,6 +26,7 @@ struct Strategy final : public roq::client::Handler {
   void operator()(roq::Event<roq::ReferenceData> const &) override;
   void operator()(roq::Event<roq::MarketStatus> const &) override;
   void operator()(roq::Event<roq::MarketByPriceUpdate> const &) override;
+  void operator()(roq::Event<roq::MarketByOrderUpdate> const &) override;
   void operator()(roq::Event<roq::OrderAck> const &) override;
   void operator()(roq::Event<roq::OrderUpdate> const &) override;
   void operator()(roq::Event<roq::TradeUpdate> const &) override;
@@ -30,6 +35,7 @@ struct Strategy final : public roq::client::Handler {
 
  private:
   roq::client::Dispatcher &dispatcher_;
+  std::unique_ptr<roq::cache::MarketByOrder> market_by_order_;
 };
 
 }  // namespace simple
