@@ -29,6 +29,10 @@ endif()
 
 find_package(Catch2 REQUIRED)
 
+find_package(PkgConfig REQUIRED)                                                                                        
+                                                                                                                        
+pkg_check_modules(MLPACK REQUIRED mlpack)
+
 add_subdirectory("${CMAKE_SOURCE_DIR}/test")
 
 # benchmark
